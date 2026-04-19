@@ -3,6 +3,7 @@ import { cookies, headers } from 'next/headers'
 import bcrypt from 'bcryptjs'
 import { ADMIN_COOKIE_MAX_AGE, ADMIN_COOKIE_NAME, signAdminToken, verifyAdminToken } from '@/lib/auth'
 import { getClientIp, rateLimit } from '@/lib/rate-limit'
+import { SubmitButton } from '@/components/ui/submit-button'
 
 export const metadata = { title: 'Admin Login' }
 
@@ -72,12 +73,9 @@ export default async function AdminLoginPage({
               className="w-full rounded-md bg-white px-3 py-2 text-sm outline-none ring-shadow focus:ring-2 focus:ring-focus"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full rounded-md bg-terracotta px-3 py-2 text-sm font-medium text-ivory hover:bg-coral"
-          >
+          <SubmitButton className="w-full" pendingLabel="Đang đăng nhập…">
             Đăng nhập
-          </button>
+          </SubmitButton>
           {params.error ? (
             <p className="text-sm text-error">{params.error}</p>
           ) : null}

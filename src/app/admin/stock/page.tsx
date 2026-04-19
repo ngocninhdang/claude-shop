@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { addStockBulk, countAvailable, disableStock, listStock } from '@/lib/services/stock-service'
 import { listAllProducts } from '@/lib/services/product-service'
 import { formatDate } from '@/lib/utils'
@@ -73,7 +73,7 @@ export default async function AdminStockPage({
             <label className="mb-1 block text-sm text-charcoal">Ghi chú</label>
             <Input name="note" placeholder="Ghi chú nội bộ (tuỳ chọn)" />
           </div>
-          <Button type="submit">Thêm vào kho</Button>
+          <SubmitButton pendingLabel="Đang nạp…">Thêm vào kho</SubmitButton>
         </form>
       </section>
 
@@ -112,9 +112,9 @@ export default async function AdminStockPage({
                   {s.status === 'available' ? (
                     <form action={disableAction}>
                       <input type="hidden" name="id" value={s.id} />
-                      <Button type="submit" variant="ghost">
+                      <SubmitButton variant="ghost" pendingLabel="…">
                         Disable
-                      </Button>
+                      </SubmitButton>
                     </form>
                   ) : null}
                 </td>

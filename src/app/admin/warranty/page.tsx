@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { listClaims, rejectClaim, resolveClaim, WarrantyError } from '@/lib/services/warranty-service'
 import { sendWarrantyResolved } from '@/lib/services/email-service'
 import { formatDate } from '@/lib/utils'
@@ -104,14 +104,14 @@ export default async function AdminWarrantyPage({
                     <input type="hidden" name="email" value={order.customerEmail} />
                     <input type="hidden" name="orderCode" value={order.orderCode} />
                     <input type="hidden" name="productName" value={item.productNameSnapshot} />
-                    <Button type="submit">Đổi account mới</Button>
+                    <SubmitButton pendingLabel="Đang đổi…">Đổi account mới</SubmitButton>
                   </form>
                   <form action={rejectActionFn} className="flex gap-2">
                     <input type="hidden" name="claimId" value={claim.id} />
                     <Input name="note" placeholder="Lý do từ chối" />
-                    <Button type="submit" variant="ghost">
+                    <SubmitButton variant="ghost" pendingLabel="…">
                       Từ chối
-                    </Button>
+                    </SubmitButton>
                   </form>
                 </div>
               ) : null}

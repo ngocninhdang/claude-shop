@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { createProduct, listAllProducts, updateProduct } from '@/lib/services/product-service'
 import { CreateProductSchema, UpdateProductSchema } from '@/lib/validators'
 import { formatVnd } from '@/lib/utils'
@@ -85,7 +85,7 @@ export default async function AdminProductsPage() {
             Bật hiển thị
           </label>
           <div className="col-span-2">
-            <Button type="submit">Tạo sản phẩm</Button>
+            <SubmitButton pendingLabel="Đang tạo…">Tạo sản phẩm</SubmitButton>
           </div>
         </form>
       </section>
@@ -109,18 +109,18 @@ export default async function AdminProductsPage() {
               <Input name="name" defaultValue={p.name} />
               <Input name="priceVnd" type="number" defaultValue={p.priceVnd} />
               <Input name="warrantyDays" type="number" defaultValue={p.warrantyDays} />
-              <Button type="submit" variant="secondary">
+              <SubmitButton variant="secondary" pendingLabel="…">
                 Lưu
-              </Button>
+              </SubmitButton>
             </form>
             <div className="mt-2 flex items-center justify-between text-sm">
               <span className="text-olive">Giá hiện tại: {formatVnd(p.priceVnd)}</span>
               <form action={toggleAction}>
                 <input type="hidden" name="id" value={p.id} />
                 <input type="hidden" name="isActive" value={String(p.isActive)} />
-                <Button type="submit" variant="ghost">
+                <SubmitButton variant="ghost" pendingLabel="…">
                   {p.isActive ? 'Ẩn' : 'Hiện'}
-                </Button>
+                </SubmitButton>
               </form>
             </div>
           </div>

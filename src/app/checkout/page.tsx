@@ -2,13 +2,14 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
-import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { listActiveProducts, getProductBySlug } from '@/lib/services/product-service'
-import { createOrder } from '@/lib/services/order-service'
+import { createOrder, getOrderById } from '@/lib/services/order-service'
 import { formatVnd } from '@/lib/utils'
 import { CreateOrderSchema } from '@/lib/validators'
 import { getClientIp, rateLimit } from '@/lib/rate-limit'
+import { notifyNewOrder } from '@/lib/services/telegram-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,7 +33,21 @@ async function checkoutAction(formData: FormData) {
     items: [{ productId, quantity }],
   })
 
-  const { orderCode } = await createOrder(parsed)
+  const { orderCode, orderId } = await createOrder(parsed)
+
+  // fire-and-forget Telegram notify
+  const order = await getOrderById(orderId)
+  if (order) {
+    notifyNewOrder({
+      order,
+      items: order.items.map((i) => ({
+        name: i.productNameSnapshot,
+        qty: i.quantity,
+        price: i.unitPriceVnd,
+      })),
+    }).catch((e) => console.error('[tg] notifyNewOrder', e))
+  }
+
   redirect(`/orders/${orderCode}?email=${encodeURIComponent(parsed.email)}&new=1`)
 }
 
@@ -97,9 +112,9 @@ export default async function CheckoutPage({
             <Textarea name="note" rows={3} placeholder="Tuỳ chọn" />
           </div>
 
-          <Button type="submit" className="w-full">
+          <SubmitButton className="w-full" pendingLabel="Đang tạo đơn…">
             Tạo đơn & xem QR
-          </Button>
+          </SubmitButton>
 
           <p className="text-xs text-olive">
             Bấm "Tạo đơn" = đồng ý{' '}

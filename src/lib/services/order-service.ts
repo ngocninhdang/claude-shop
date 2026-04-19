@@ -206,6 +206,28 @@ export async function cancelOrder(orderId: string): Promise<void> {
     .where(and(eq(orders.id, orderId), eq(orders.status, 'pending')))
 }
 
+export async function claimPayment(
+  orderCode: string,
+  email: string,
+): Promise<Order | null> {
+  const [order] = await db
+    .select()
+    .from(orders)
+    .where(eq(orders.orderCode, orderCode))
+    .limit(1)
+  if (!order) return null
+  if (order.customerEmail.toLowerCase() !== email.toLowerCase().trim()) return null
+  if (order.status !== 'pending') return order
+  if (order.paymentClaimedAt) return order
+
+  const [updated] = await db
+    .update(orders)
+    .set({ paymentClaimedAt: new Date(), updatedAt: new Date() })
+    .where(eq(orders.id, order.id))
+    .returning()
+  return updated
+}
+
 export async function lookupByCode(
   orderCode: string,
   email: string,

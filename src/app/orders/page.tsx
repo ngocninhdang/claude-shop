@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
 
 async function lookupAction(formData: FormData) {
   'use server'
@@ -28,7 +28,7 @@ export default function OrderLookupIndex() {
             <label className="mb-1 block text-sm text-charcoal">Email</label>
             <Input name="email" type="email" required />
           </div>
-          <Button type="submit" className="w-full">Tra cứu</Button>
+          <SubmitButton className="w-full" pendingLabel="Đang tra cứu…">Tra cứu</SubmitButton>
         </form>
       </main>
       <SiteFooter />

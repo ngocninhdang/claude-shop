@@ -1,10 +1,26 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { revalidatePath } from 'next/cache'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
 import { Badge } from '@/components/ui/badge'
-import { lookupByCode } from '@/lib/services/order-service'
+import { SubmitButton } from '@/components/ui/submit-button'
+import { claimPayment, lookupByCode } from '@/lib/services/order-service'
+import { notifyPaymentClaimed } from '@/lib/services/telegram-service'
 import { formatDate, formatVnd, qrUrl } from '@/lib/utils'
 import { getClientIp, rateLimit } from '@/lib/rate-limit'
+
+async function claimPaymentAction(formData: FormData) {
+  'use server'
+  const orderCode = String(formData.get('orderCode') ?? '')
+  const email = String(formData.get('email') ?? '')
+  const order = await claimPayment(orderCode, email)
+  if (order && order.status === 'pending') {
+    notifyPaymentClaimed(order).catch((e) =>
+      console.error('[tg] notifyPaymentClaimed', e),
+    )
+  }
+  revalidatePath(`/orders/${orderCode}`)
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -104,6 +120,26 @@ export default async function OrderDetailPage({
                   Ghi đúng nội dung <b>{order.orderCode}</b> để hệ thống đối soát.
                 </p>
               </dl>
+            </div>
+
+            <div className="mt-6 border-t border-border-warm pt-6">
+              {order.paymentClaimedAt ? (
+                <div className="rounded-md bg-[#dde9f5] p-4 text-sm text-[#2a4d73]">
+                  ✓ Đã ghi nhận bạn chuyển khoản lúc {formatDate(order.paymentClaimedAt)}.
+                  Admin sẽ kiểm tra và giao hàng trong thời gian sớm nhất.
+                </div>
+              ) : (
+                <form action={claimPaymentAction}>
+                  <input type="hidden" name="orderCode" value={order.orderCode} />
+                  <input type="hidden" name="email" value={email} />
+                  <SubmitButton className="w-full" pendingLabel="Đang gửi…">
+                    Tôi đã chuyển khoản
+                  </SubmitButton>
+                  <p className="mt-2 text-center text-xs text-olive">
+                    Bấm sau khi hoàn tất chuyển khoản để admin được thông báo.
+                  </p>
+                </form>
+              )}
             </div>
           </section>
         ) : null}

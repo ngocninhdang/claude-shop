@@ -64,7 +64,12 @@ export default async function AdminOrdersPage({
                 <td className="px-4 py-3 text-charcoal">{o.customerEmail}</td>
                 <td className="px-4 py-3 text-right">{formatVnd(o.totalVnd)}</td>
                 <td className="px-4 py-3">
-                  <Badge tone={STATUS_TONE[o.status]}>{o.status}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge tone={STATUS_TONE[o.status]}>{o.status}</Badge>
+                    {o.status === 'pending' && o.paymentClaimedAt ? (
+                      <Badge tone="info">💸 đã báo CK</Badge>
+                    ) : null}
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-olive">{formatDate(o.createdAt)}</td>
               </tr>

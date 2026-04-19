@@ -60,6 +60,7 @@ export const orders = pgTable(
     totalVnd: integer('total_vnd').notNull(),
     status: orderStatusEnum('status').notNull().default('pending'),
     paymentMethod: text('payment_method').notNull().default('bank_transfer'),
+    paymentClaimedAt: timestamp('payment_claimed_at', { withTimezone: true }),
     paidAt: timestamp('paid_at', { withTimezone: true }),
     deliveredAt: timestamp('delivered_at', { withTimezone: true }),
     warrantyUntil: timestamp('warranty_until', { withTimezone: true }),

@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/ui/submit-button'
 import {
   cancelOrder,
   getOrderById,
@@ -66,6 +66,13 @@ export default async function AdminOrderDetailPage({
         <div className="rounded-md bg-[#f4d9d9] px-4 py-3 text-sm text-error">{error}</div>
       ) : null}
 
+      {order.paymentClaimedAt && order.status === 'pending' ? (
+        <div className="rounded-md bg-[#dde9f5] px-4 py-3 text-sm text-[#2a4d73]">
+          💸 Khách đã bấm "đã chuyển khoản" lúc {formatDate(order.paymentClaimedAt)} —
+          kiểm tra bank và xác nhận.
+        </div>
+      ) : null}
+
       <section className="rounded-xl bg-ivory p-6 ring-shadow">
         <h2 className="mb-3 font-serif text-xl">Khách hàng</h2>
         <dl className="grid grid-cols-2 gap-y-2 text-sm">
@@ -110,13 +117,15 @@ export default async function AdminOrderDetailPage({
         <div className="flex gap-3">
           <form action={confirmAction}>
             <input type="hidden" name="orderId" value={order.id} />
-            <Button type="submit">Xác nhận đã thanh toán → Giao</Button>
+            <SubmitButton pendingLabel="Đang giao…">
+              Xác nhận đã thanh toán → Giao
+            </SubmitButton>
           </form>
           <form action={cancelAction}>
             <input type="hidden" name="orderId" value={order.id} />
-            <Button type="submit" variant="ghost">
+            <SubmitButton variant="ghost" pendingLabel="Đang huỷ…">
               Huỷ đơn
-            </Button>
+            </SubmitButton>
           </form>
         </div>
       ) : null}

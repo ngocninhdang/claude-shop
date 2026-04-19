@@ -2,12 +2,13 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
-import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/input'
+import { SubmitButton } from '@/components/ui/submit-button'
 import { lookupByCode } from '@/lib/services/order-service'
 import { openClaim, WarrantyError } from '@/lib/services/warranty-service'
 import { WarrantyClaimSchema } from '@/lib/validators'
 import { getClientIp, rateLimit } from '@/lib/rate-limit'
+import { notifyNewWarranty } from '@/lib/services/telegram-service'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,6 +35,19 @@ async function submitAction(formData: FormData) {
     }
     throw e
   }
+
+  // fire-and-forget Telegram notify
+  const order = await lookupByCode(parsed.orderCode, parsed.email)
+  const item = order?.items.find((i) => i.id === parsed.orderItemId)
+  if (order && item) {
+    notifyNewWarranty({
+      orderCode: parsed.orderCode,
+      productName: item.productNameSnapshot,
+      customerEmail: parsed.email,
+      reason: parsed.reason,
+    }).catch((e) => console.error('[tg] notifyNewWarranty', e))
+  }
+
   redirect(`/orders/${parsed.orderCode}?email=${encodeURIComponent(parsed.email)}&claim=ok`)
 }
 
@@ -114,7 +128,7 @@ export default async function WarrantyPage({
               placeholder="Nêu rõ lỗi bạn gặp: không login được, bị khoá, v.v."
             />
           </div>
-          <Button type="submit">Gửi yêu cầu</Button>
+          <SubmitButton pendingLabel="Đang gửi…">Gửi yêu cầu</SubmitButton>
         </form>
       </main>
       <SiteFooter />
