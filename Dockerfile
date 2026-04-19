@@ -32,9 +32,10 @@ ENV HOSTNAME=0.0.0.0
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# public/ may not exist — create an empty dir so runtime doesn't complain
+RUN mkdir -p ./public && chown -R nextjs:nodejs ./public
 
 USER nextjs
 EXPOSE 3000
