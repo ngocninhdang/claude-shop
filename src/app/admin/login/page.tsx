@@ -18,13 +18,6 @@ async function loginAction(formData: FormData) {
   const hash = process.env.ADMIN_PASSWORD_HASH
   if (!hash) throw new Error('ADMIN_PASSWORD_HASH chưa cấu hình')
 
-  console.log(
-    '[login-debug] pw.len=%d pw.hex=%s hash.len=%d',
-    password.length,
-    Buffer.from(password, 'utf8').toString('hex'),
-    hash.length,
-  )
-
   const ok = await bcrypt.compare(password, hash)
   if (!ok) throw new Error('Sai mật khẩu')
 
