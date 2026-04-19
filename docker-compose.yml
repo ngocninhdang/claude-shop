@@ -6,8 +6,8 @@ services:
     image: claude-shop:latest
     container_name: claude-shop-app
     restart: unless-stopped
-    env_file:
-      - .env.production
-    # Bind chỉ ra loopback — host Caddy sẽ reverse proxy tới đây.
+    # Mount file thay vì env_file, vì docker-compose env_file expand $ → Next.js @next/env đọc trực tiếp và hiểu \$ đúng.
+    volumes:
+      - ./.env.production:/app/.env.production:ro
     ports:
       - "127.0.0.1:3001:3000"
