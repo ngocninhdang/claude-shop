@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  /* Claude design tokens (DESIGN.md) */
+  --color-parchment: #f5f4ed;
+  --color-ivory: #faf9f5;
+  --color-white: #ffffff;
+  --color-sand: #e8e6dc;
+  --color-dark-surface: #30302e;
+  --color-deep-dark: #141413;
+
+  --color-terracotta: #c96442;
+  --color-coral: #d97757;
+  --color-error: #b53333;
+  --color-focus: #3898ec;
+
+  --color-charcoal: #4d4c48;
+  --color-olive: #5e5d59;
+  --color-stone: #87867f;
+  --color-dark-warm: #3d3d3a;
+  --color-silver: #b0aea5;
+
+  --color-border-cream: #f0eee6;
+  --color-border-warm: #e8e6dc;
+  --color-border-dark: #30302e;
+  --color-ring-warm: #d1cfc5;
+  --color-ring-deep: #c2c0b6;
+
+  --font-serif: 'Tiempos Headline', 'Georgia', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  background-color: var(--color-parchment);
+  color: var(--color-deep-dark);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+::selection {
+  background: var(--color-terracotta);
+  color: var(--color-ivory);
+}
+
+/* Ring-based shadow utility (DESIGN.md §1) */
+.ring-shadow {
+  box-shadow: 0 0 0 1px var(--color-ring-warm);
+}
+.ring-shadow-deep {
+  box-shadow: 0 0 0 1px var(--color-ring-deep);
+}
