@@ -63,6 +63,24 @@ openssl rand -base64 32   # STOCK_ENCRYPTION_KEY
 ADMIN_PASSWORD_HASH=\$2a\$10\$xxxxxxxxxxxxxxxxxxxxxx
 ```
 
+## 3b. Nếu VPS đã có Caddy chạy sẵn trên host
+
+Mặc định `docker-compose.yml` bind app ra `127.0.0.1:3001`. Thêm site vào `/etc/caddy/Caddyfile`:
+
+```
+claude.nguyentheduc.com {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:3001
+}
+```
+
+Reload:
+```bash
+sudo systemctl reload caddy
+```
+
+Caddy host sẽ tự xin cert. Bỏ qua phần chạy caddy trong docker ở step 4.
+
 ## 4. Chạy
 
 Lần đầu:

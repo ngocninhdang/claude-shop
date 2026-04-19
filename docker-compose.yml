@@ -8,32 +8,6 @@ services:
     restart: unless-stopped
     env_file:
       - .env.production
-    expose:
-      - "3000"
-    networks:
-      - web
-
-  caddy:
-    image: caddy:2-alpine
-    container_name: claude-shop-caddy
-    restart: unless-stopped
+    # Bind chỉ ra loopback — host Caddy sẽ reverse proxy tới đây.
     ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - web
-    depends_on:
-      - app
-
-networks:
-  web:
-    driver: bridge
-
-volumes:
-  caddy_data:
-  caddy_config:
+      - "127.0.0.1:3001:3000"
