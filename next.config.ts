@@ -6,7 +6,7 @@ const config: NextConfig = {
   serverExternalPackages: ['@neondatabase/serverless', 'ws', 'bcryptjs'],
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'img.vietqr.io' },
+      { protocol: 'https', hostname: 'qr.sepay.vn' },
     ],
   },
 }

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
 import { Badge } from '@/components/ui/badge'
 import { lookupByCode, OrderServiceError } from '@/lib/services/order-service'
-import { formatDate, formatVnd, vietQrUrl } from '@/lib/utils'
+import { formatDate, formatVnd, qrUrl } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,9 +48,10 @@ export default async function OrderDetailPage({
   }
   if (!order) notFound()
 
-  const qrUrl = vietQrUrl(order.totalVnd, order.orderCode)
+  const qrImg = qrUrl(order.totalVnd, order.orderCode)
   const bankName = process.env.BANK_ACCOUNT_NAME
   const bankNo = process.env.BANK_ACCOUNT_NO
+  const bankCode = process.env.BANK_BIN
 
   return (
     <>
@@ -84,10 +85,10 @@ export default async function OrderDetailPage({
             <div className="mt-4 grid gap-6 md:grid-cols-2">
               <div className="flex items-center justify-center rounded-md bg-white p-3 ring-shadow">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={qrUrl} alt="VietQR" className="h-64 w-64 object-contain" />
+                <img src={qrImg} alt="QR chuyển khoản" className="h-64 w-64 object-contain" />
               </div>
               <dl className="space-y-2 text-sm">
-                <Row label="Ngân hàng" value={process.env.BANK_BIN ?? '—'} />
+                <Row label="Ngân hàng" value={bankCode ?? '—'} />
                 <Row label="Số tài khoản" value={bankNo ?? '—'} copy />
                 <Row label="Chủ tài khoản" value={bankName ?? '—'} />
                 <Row label="Số tiền" value={formatVnd(order.totalVnd)} strong copy={String(order.totalVnd)} />

@@ -18,14 +18,12 @@ export function generateOrderCode(): string {
   return `CLS-${out}`
 }
 
-export function vietQrUrl(amount: number, addInfo: string): string {
-  const bin = process.env.BANK_BIN ?? ''
-  const account = process.env.BANK_ACCOUNT_NO ?? ''
-  const name = process.env.BANK_ACCOUNT_NAME ?? ''
-  const url = new URL(`https://img.vietqr.io/image/${bin}-${account}-compact2.png`)
+export function qrUrl(amount: number, desc: string): string {
+  const url = new URL('https://qr.sepay.vn/img')
+  url.searchParams.set('acc', process.env.BANK_ACCOUNT_NO ?? '')
+  url.searchParams.set('bank', process.env.BANK_BIN ?? '')
   url.searchParams.set('amount', String(amount))
-  url.searchParams.set('addInfo', addInfo)
-  if (name) url.searchParams.set('accountName', name)
+  url.searchParams.set('des', desc)
   return url.toString()
 }
 
