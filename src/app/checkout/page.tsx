@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
 import { Button } from '@/components/ui/button'
 import { Input, Textarea } from '@/components/ui/input'
@@ -7,11 +8,17 @@ import { listActiveProducts, getProductBySlug } from '@/lib/services/product-ser
 import { createOrder } from '@/lib/services/order-service'
 import { formatVnd } from '@/lib/utils'
 import { CreateOrderSchema } from '@/lib/validators'
+import { getClientIp, rateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
 async function checkoutAction(formData: FormData) {
   'use server'
+  const ip = getClientIp(await headers())
+  if (!rateLimit(`checkout:${ip}`, 5, 10 * 60 * 1000)) {
+    throw new Error('Tạo đơn quá nhiều. Chờ 10 phút rồi thử lại.')
+  }
+
   const productId = String(formData.get('productId'))
   const quantity = Math.max(1, Math.min(10, Number(formData.get('quantity') ?? 1)))
   const email = String(formData.get('email') ?? '').trim()

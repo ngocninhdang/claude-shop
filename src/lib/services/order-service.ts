@@ -215,10 +215,10 @@ export async function lookupByCode(
     .from(orders)
     .where(eq(orders.orderCode, orderCode))
     .limit(1)
+  // Anti-enumeration: return null for both not-found and email-mismatch so
+  // an attacker can't probe which order codes exist.
   if (!order) return null
-  if (order.customerEmail.toLowerCase() !== email.toLowerCase().trim()) {
-    throw new OrderServiceError('EMAIL_MISMATCH', 'Email không khớp với đơn hàng')
-  }
+  if (order.customerEmail.toLowerCase() !== email.toLowerCase().trim()) return null
 
   const rows = await db
     .select({

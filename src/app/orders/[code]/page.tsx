@@ -1,9 +1,10 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { headers } from 'next/headers'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
 import { Badge } from '@/components/ui/badge'
-import { lookupByCode, OrderServiceError } from '@/lib/services/order-service'
+import { lookupByCode } from '@/lib/services/order-service'
 import { formatDate, formatVnd, qrUrl } from '@/lib/utils'
+import { getClientIp, rateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +17,18 @@ export default async function OrderDetailPage({
 }) {
   const { code } = await params
   const { email, new: isNew } = await searchParams
+  const ip = getClientIp(await headers())
+  if (!rateLimit(`order-lookup:${ip}`, 20, 60 * 1000)) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="mx-auto max-w-lg px-6 py-16 text-center text-error">
+          Quá nhiều lượt tra cứu. Chờ 1 phút rồi thử lại.
+        </main>
+      </>
+    )
+  }
+
   if (!email) {
     return (
       <>
@@ -27,26 +40,20 @@ export default async function OrderDetailPage({
     )
   }
 
-  let order
-  try {
-    order = await lookupByCode(code, email)
-  } catch (e) {
-    if (e instanceof OrderServiceError) {
-      return (
-        <>
-          <SiteHeader />
-          <main className="mx-auto max-w-lg px-6 py-16 text-center">
-            <p className="text-error">{e.message}</p>
-            <Link href="/orders" className="mt-4 inline-block text-terracotta hover:underline">
-              ← Tra cứu lại
-            </Link>
-          </main>
-        </>
-      )
-    }
-    throw e
+  const order = await lookupByCode(code, email)
+  if (!order) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="mx-auto max-w-lg px-6 py-16 text-center">
+          <p className="text-olive">Không tìm thấy đơn. Kiểm tra lại mã đơn và email.</p>
+          <Link href="/orders" className="mt-4 inline-block text-terracotta hover:underline">
+            ← Tra cứu lại
+          </Link>
+        </main>
+      </>
+    )
   }
-  if (!order) notFound()
 
   const qrImg = qrUrl(order.totalVnd, order.orderCode)
   const bankName = process.env.BANK_ACCOUNT_NAME

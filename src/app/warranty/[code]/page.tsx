@@ -1,16 +1,23 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 import { SiteFooter, SiteHeader } from '@/components/shop/site-header'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/input'
-import { lookupByCode, OrderServiceError } from '@/lib/services/order-service'
+import { lookupByCode } from '@/lib/services/order-service'
 import { openClaim, WarrantyError } from '@/lib/services/warranty-service'
 import { WarrantyClaimSchema } from '@/lib/validators'
+import { getClientIp, rateLimit } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
 async function submitAction(formData: FormData) {
   'use server'
+  const ip = getClientIp(await headers())
+  if (!rateLimit(`warranty:${ip}`, 3, 60 * 60 * 1000)) {
+    throw new Error('Quá nhiều yêu cầu bảo hành. Chờ 1 tiếng.')
+  }
+
   const parsed = WarrantyClaimSchema.parse({
     orderCode: String(formData.get('orderCode') ?? ''),
     email: String(formData.get('email') ?? ''),
@@ -50,26 +57,13 @@ export default async function WarrantyPage({
     )
   }
 
-  let order
-  try {
-    order = await lookupByCode(code, email)
-  } catch (e) {
-    if (e instanceof OrderServiceError) {
-      return (
-        <>
-          <SiteHeader />
-          <main className="mx-auto max-w-lg px-6 py-16 text-center text-error">{e.message}</main>
-        </>
-      )
-    }
-    throw e
-  }
+  const order = await lookupByCode(code, email)
   if (!order) {
     return (
       <>
         <SiteHeader />
         <main className="mx-auto max-w-lg px-6 py-16 text-center text-olive">
-          Đơn không tồn tại.
+          Không tìm thấy đơn.
         </main>
       </>
     )
