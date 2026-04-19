@@ -18,6 +18,7 @@ build/
 *.pem
 .vscode/
 .idea/
+.claude/
 
 # logs
 npm-debug.log*
